@@ -4,6 +4,9 @@ pragma solidity ^0.8.8;
 // Imports
 import "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import "./PriceConverter.sol";
+import "@openzeppelin/contracts/utils/introspection/IERC165.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 // 3. Interfaces, Libraries, Contracts
 error FundMe__NotOwner();
@@ -39,13 +42,29 @@ contract FundMe {
         s_priceFeed = AggregatorV3Interface(s_priceFeedAddress);
     }
 
-    receive() external payable {
-        fund();
+    // * receive function
+    receive() external payable {}
+
+    // * fallback function
+    fallback() external payable {}
+
+    function supportsInterface(
+        bytes4 interfaceID
+    ) external pure returns (bool) {
+        return interfaceID == type(IERC20).interfaceId; // If your token is ERC-20
     }
 
-    fallback() external payable {
-        fund();
+    function decimals() public pure returns (uint8) {
+        return 18;
     }
+
+    // receive() external payable {
+    //     fund();
+    // }
+
+    // fallback() external payable {
+    //     fund();
+    // }
 
     /// @notice Funds our contract based on the ETH/USD price
     function fund() public payable {
